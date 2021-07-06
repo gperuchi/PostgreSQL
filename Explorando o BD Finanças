@@ -138,3 +138,17 @@ CREATE OR REPLACE VIEW vw_bancos_com_a AS
 SELECT * FROM vw_bancos_com_a;
 INSERT INTO vw_bancos_com_a (numero, nome, ativo) VALUES (333, 'Alfa Ômega', true);
 INSERT INTO vw_bancos_com_a (numero, nome, ativo) VALUES (331, 'Alfa Gama', false);
+
+-- TRANSAÇÕES
+
+SELECT numero, nome, ativo FROM banco ORDER BY numero;
+
+UPDATE banco SET ativo = FALSE WHERE numero = 0;
+
+BEGIN;
+UPDATE banco SET ativo = TRUE WHERE numero = 0;
+ROLLBACK;
+
+BEGIN;
+UPDATE banco SET ativo = TRUE WHERE numero = 0;
+COMMIT;
