@@ -1,4 +1,5 @@
 --SELECT
+
 SELECT numero, nome FROM banco;
 SELECT banco_numero, numero, nome FROM agencia;
 SELECT numero, nome, email FROM cliente;
@@ -9,6 +10,7 @@ SELECT * FROM information_schema.columns WHERE table_name = 'banco';
 SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'banco';
 
 --AVG, MAX, MIN, GROUP BY
+
 SELECT * FROM cliente_transacoes;
 SELECT AVG(valor) FROM cliente_transacoes;
 SELECT COUNT (numero), email FROM cliente WHERE email ILIKE '%gmail.com' GROUP BY email;
@@ -24,6 +26,7 @@ SELECT COUNT (id), tipo_transacao_id FROM cliente_transacoes GROUP BY tipo_trans
 SELECT SUM (valor), tipo_transacao_id FROM cliente_transacoes GROUP BY tipo_transacao_id ORDER BY tipo_transacao_id DESC;
 
 --JOIN
+
 SELECT numero, nome FROM banco;
 SELECT banco_numero, numero, nome FROM agencia;
 SELECT numero, nome FROM cliente;
@@ -52,6 +55,7 @@ JOIN cliente
 	ON cliente.numero = conta_corrente.cliente_numero;
 
 --CTE
+
 SELECT numero, nome FROM banco;
 SELECT banco_numero, numero, nome FROM agencia;
 
@@ -87,3 +91,50 @@ WITH cliente_e_transacoes AS
 	JOIN banco ON banco.numero = cliente_transacoes.banco_numero AND banco.nome ILIKE '%Itaú%'
 )
 SELECT cliente_nome, tipo_transacao_nome, tipo_transacao_valor FROM cliente_e_transacoes;
+
+-- VIEW
+
+SELECT numero, nome, ativo FROM banco;
+
+CREATE OR REPLACE VIEW vw_bancos AS
+(
+	SELECT numero, nome, ativo FROM banco
+); 
+
+SELECT numero, nome, ativo FROM vw_bancos;
+
+CREATE OR REPLACE VIEW vw_bancos_2 (banco_numero, banco_nome, banco_ativo) AS
+(
+	SELECT numero, nome, ativo FROM banco
+);
+
+SELECT banco_numero, banco_nome, banco_ativo FROM vw_bancos_2;
+INSERT INTO vw_bancos_2 (banco_numero, banco_nome, banco_ativo) VALUES (51, 'Banco Boa Ideia', true);
+SELECT banco_numero, banco_nome, banco_ativo FROM vw_bancos_2 WHERE banco_numero = 51;
+SELECT numero, nome, ativo FROM banco WHERE numero = 51;
+UPDATE vw_bancos_2 SET banco_ativo = FALSE WHERE banco_numero = 51;
+DELETE FROM vw_bancos_2 WHERE banco_numero = 51;
+
+CREATE OR REPLACE TEMPORARY VIEW vw_agencias AS
+(
+	SELECT nome FROM agencia
+);
+SELECT nome FROM vw_agencias;
+
+CREATE OR REPLACE VIEW vw_bancos_ativos AS
+(
+	SELECT numero, nome, ativo FROM banco
+	WHERE ativo IS TRUE
+) WITH LOCAL CHECK OPTION;
+SELECT numero, nome, ativo FROM vw_bancos_ativos;
+INSERT INTO vw_bancos_ativos (numero, nome, ativo) VALUES (51, 'Banco Boa Ideia', FALSE);
+
+CREATE OR REPLACE VIEW vw_bancos_com_a AS
+(
+	SELECT numero, nome, ativo FROM vw_bancos_ativos
+	WHERE nome ILIKE '% A%'
+) WITH LOCAL CHECK OPTION;
+
+SELECT * FROM vw_bancos_com_a;
+INSERT INTO vw_bancos_com_a (numero, nome, ativo) VALUES (333, 'Alfa Ômega', true);
+INSERT INTO vw_bancos_com_a (numero, nome, ativo) VALUES (331, 'Alfa Gama', false);
